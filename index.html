@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HomeFix Smart Services � One Call. Total Home Care.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="modal-overlay hidden" onclick="handleOverlayClick(event,'authModal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Register</button>
+    </div>
+    <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+      <h2>Welcome Back</h2>
+      <p class="auth-sub">Sign in to manage your bookings</p>
+      <div class="field-group">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" required/>
+      </div>
+      <div class="field-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required/>
+      </div>
+      <div id="loginError" class="form-error hidden"></div>
+      <button type="submit" class="btn-primary full" id="loginBtn">Sign In</button>
+      <p class="auth-switch">Don't have an account? <a href="#" onclick="switchTab('register');return false;">Register free</a></p>
+    </form>
+    <form id="registerForm" class="auth-form hidden" onsubmit="handleRegister(event)">
+      <h2>Create Account</h2>
+      <p class="auth-sub">Join thousands of happy homeowners</p>
+      <div class="field-group">
+        <label>Full Name</label>
+        <input type="text" id="regName" placeholder="Ravi Kumar" required/>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Email</label>
+          <input type="email" id="regEmail" placeholder="ravi@example.com" required/>
+        </div>
+        <div class="field-group">
+          <label>Phone</label>
+          <input type="tel" id="regPhone" placeholder="+91 98765 43210" required/>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Full Address</label>
+        <input type="text" id="regAddress" placeholder="Door No, Street, City" required/>
+      </div>
+      <div class="field-group">
+        <label>Password</label>
+        <input type="password" id="regPassword" placeholder="Minimum 6 characters" required/>
+      </div>
+      <div id="regError" class="form-error hidden"></div>
+      <button type="submit" class="btn-primary full" id="registerBtn">Create Account</button>
+      <p class="auth-switch">Already registered? <a href="#" onclick="switchTab('login');return false;">Sign in</a></p>
+    </form>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div id="bookingModal" class="modal-overlay hidden" onclick="handleOverlayClick(event,'bookingModal')">
+  <div class="modal-box booking-box">
+    <button class="modal-close" onclick="closeBooking()">✕</button>
+    <div id="bookingStep1" class="booking-step">
+      <div class="booking-header">
+        <span id="bookingServiceIcon" class="booking-svc-icon">🔧</span>
+        <div>
+          <h2 id="bookingServiceName">Book Service</h2>
+          <p class="auth-sub" id="bookingServiceDesc">Select requirements below</p>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Choose Sub-Service <span class="req">*</span></label>
+        <div id="subServiceList" class="sub-service-grid"></div>
+      </div>
+      <div class="price-pill hidden" id="priceDisplay">
+        Estimated Price: <strong id="priceValue">₹0</strong>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>City <span class="req">*</span></label>
+          <select id="bookCity" required>
+            <option value="">Select city</option>
+            <option>Chennai</option><option>Madurai</option><option>Sivagangai</option>
+            <option>Coimbatore</option><option>Tiruchirappalli</option><option>Salem</option>
+            <option>Tirunelveli</option><option>Erode</option><option>Vellore</option><option>Thoothukudi</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Area / Locality</label>
+          <input type="text" id="bookArea" placeholder="Anna Nagar, T.Nagar..."/>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Date <span class="req">*</span></label>
+          <input type="date" id="bookDate" required/>
+        </div>
+        <div class="field-group">
+          <label>Time Slot <span class="req">*</span></label>
+          <select id="bookTime" required>
+            <option value="">Select slot</option>
+            <option>09:00 AM</option><option>10:00 AM</option><option>11:00 AM</option>
+            <option>12:00 PM</option><option>02:00 PM</option><option>03:00 PM</option>
+            <option>04:00 PM</option><option>05:00 PM</option><option>06:00 PM</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Service Address <span class="req">*</span></label>
+        <textarea id="bookAddress" rows="2" placeholder="Full address where service is needed..." required></textarea>
+      </div>
+      <div class="field-group">
+        <label>Special Notes</label>
+        <textarea id="bookNotes" rows="2" placeholder="Any specific issues or requirements..."></textarea>
+      </div>
+      <div id="bookError" class="form-error hidden"></div>
+      <button class="btn-primary full" id="confirmBookBtn" onclick="submitBooking()">Confirm Booking →</button>
+    </div>
+    <div id="bookingSuccess" class="booking-step hidden text-center">
+      <div class="success-wrap">
+        <div class="success-ring"></div>
+        <div class="success-check">✓</div>
+      </div>
+      <h2>Booking Confirmed! 🎉</h2>
+      <p class="auth-sub">Our technician will contact you within 30 minutes.</p>
+      <div class="booking-confirm-card" id="bookingConfirmCard"></div>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;">
+        <button class="btn-primary" onclick="openMyBookings()">View Bookings</button>
+        <button class="btn-ghost" onclick="closeBooking()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MY BOOKINGS MODAL -->
+<div id="bookingsModal" class="modal-overlay hidden" onclick="handleOverlayClick(event,'bookingsModal')">
+  <div class="modal-box bookings-box">
+    <button class="modal-close" onclick="document.getElementById('bookingsModal').classList.add('hidden')">✕</button>
+    <h2>My Bookings</h2>
+    <p class="auth-sub" style="margin-bottom:24px">Your complete service history</p>
+    <div id="bookingsList"></div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="#home" class="nav-logo">
+      <div class="logo-mark">⚡</div>
+      <span>HomeFix<strong>Smart Services</strong></span>
+    </a>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#how">How It Works</a>
+      <a href="#cities">Cities</a>
+      <a href="#technicians">Technicians</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-actions">
+      <div class="city-pill">
+        <span>📍</span>
+        <select id="globalCity" onchange="syncCity(this.value)">
+          <option value="">Select City</option>
+          <option>Chennai</option><option>Madurai</option><option>Sivagangai</option>
+          <option>Coimbatore</option><option>Tiruchirappalli</option><option>Salem</option>
+          <option>Tirunelveli</option><option>Erode</option><option>Vellore</option><option>Thoothukudi</option>
+        </select>
+      </div>
+      <div id="authButtons" class="auth-btn-group">
+        <button class="btn-ghost" onclick="openAuth('login')">Login</button>
+        <button class="btn-primary" onclick="openAuth('register')">Register</button>
+      </div>
+      <div id="userMenu" class="user-menu hidden">
+        <div class="user-avatar-btn">
+          <div class="user-avatar" id="userAvatar">?</div>
+          <span id="userGreeting"></span>
+          <span class="dropdown-arrow">▾</span>
+        </div>
+        <div class="user-dropdown">
+          <button onclick="openMyBookings()">📋 My Bookings</button>
+          <button onclick="logout()">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+    <button class="hamburger" onclick="toggleMobile()">☰</button>
+  </div>
+  <div id="mobileMenu" class="mobile-menu hidden">
+    <a href="#services" onclick="toggleMobile()">Services</a>
+    <a href="#how" onclick="toggleMobile()">How It Works</a>
+    <a href="#cities" onclick="toggleMobile()">Cities</a>
+    <a href="#contact" onclick="toggleMobile()">Contact</a>
+    <div class="mobile-auth" id="mobileAuth">
+      <button class="btn-ghost" onclick="openAuth('login');toggleMobile()">Login</button>
+      <button class="btn-primary" onclick="openAuth('register');toggleMobile()">Register</button>
+    </div>
+    <div class="mobile-auth hidden" id="mobileUser">
+      <button class="btn-ghost" onclick="openMyBookings();toggleMobile()">📋 My Bookings</button>
+      <button class="btn-ghost" onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="home" class="hero">
+  <div class="hero-bg">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="hero-grid-pattern"></div>
+  </div>
+  <div class="hero-layout">
+    <div class="hero-left">
+      <div class="hero-badge"><span class="live-dot"></span> Tamil Nadu's #1 Home Services Platform</div>
+      <h1 class="hero-title">One Call.<br/><em>Total Home</em><br/>Care.</h1>
+      <p class="hero-sub">Expert technicians at your doorstep across Chennai, Madurai, Sivagangai & all Tamil Nadu cities. Verified professionals, transparent pricing.</p>
+      <div class="hero-cta-row">
+        <div class="hero-city-wrap">
+          <span>📍</span>
+          <select id="heroCity" class="hero-city-select" onchange="syncCityFromHero(this.value)">
+            <option value="">Select your city</option>
+            <option>Chennai</option><option>Madurai</option><option>Sivagangai</option>
+            <option>Coimbatore</option><option>Tiruchirappalli</option><option>Salem</option>
+            <option>Tirunelveli</option><option>Erode</option><option>Vellore</option><option>Thoothukudi</option>
+          </select>
+        </div>
+        <button class="btn-hero" onclick="goToServices()">Explore Services →</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item"><strong>10,000+</strong><span>Customers</span></div>
+        <div class="stat-sep"></div>
+        <div class="stat-item"><strong>500+</strong><span>Technicians</span></div>
+        <div class="stat-sep"></div>
+        <div class="stat-item"><strong>10+</strong><span>Cities</span></div>
+        <div class="stat-sep"></div>
+        <div class="stat-item"><strong>30 Min</strong><span>Response</span></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-visual">
+        <div class="visual-glow"></div>
+        <div class="visual-home">🏠</div>
+        <div class="float-card fc1"><span>❄️</span><div><strong>AC Service</strong><small>From ₹399</small></div><span class="fc-star">⭐4.9</span></div>
+        <div class="float-card fc2"><span>🔧</span><div><strong>Plumbing</strong><small>From ₹199</small></div><span class="fc-star">⭐4.8</span></div>
+        <div class="float-card fc3"><span>⚡</span><div><strong>Electrical</strong><small>From ₹149</small></div><span class="fc-star">⭐4.9</span></div>
+        <div class="float-card fc4"><div class="live-dot"></div><span>3 technicians nearby</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-items">
+    <span>✅ Verified Technicians</span><span class="dot">•</span>
+    <span>🛡️ 30-Day Warranty</span><span class="dot">•</span>
+    <span>💰 Transparent Pricing</span><span class="dot">•</span>
+    <span>⚡ Same-Day Service</span><span class="dot">•</span>
+    <span>📱 Real-time Tracking</span><span class="dot">•</span>
+    <span>🏆 10,000+ Reviews</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services" class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-tag">What We Fix</div>
+      <h2>All Home Services <span class="accent">Under One Roof</span></h2>
+      <p>Certified professionals, guaranteed quality, transparent pricing</p>
+    </div>
+    <div id="apiStatus" class="api-status hidden"></div>
+    <div id="servicesGrid" class="services-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:80px 0">
+        <div class="spinner"></div>
+        <p style="margin-top:16px;color:#888">Loading services from database...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="section dark-section">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-tag">Simple Process</div>
+      <h2>Book in <span class="accent">3 Easy Steps</span></h2>
+    </div>
+    <div class="steps-row">
+      <div class="step-card"><div class="step-num">01</div><div class="step-ico">📱</div><h3>Choose Service</h3><p>Browse our 6+ categories, select city and pick what you need.</p></div>
+      <div class="step-arr">→</div>
+      <div class="step-card"><div class="step-num">02</div><div class="step-ico">🗓️</div><h3>Schedule Time</h3><p>Pick a convenient date and time. Same-day slots available.</p></div>
+      <div class="step-arr">→</div>
+      <div class="step-card"><div class="step-num">03</div><div class="step-ico">✅</div><h3>Get It Done</h3><p>Verified technician arrives. Pay only after you're satisfied.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CITIES -->
+<section id="cities" class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-tag">Coverage</div>
+      <h2>Serving Across <span class="accent">Tamil Nadu</span></h2>
+      <p>Click any city to explore services near you</p>
+    </div>
+    <div class="cities-grid">
+      <div class="city-card big-city" onclick="pickCity('Chennai')"><div class="city-ico">🌆</div><div><h3>Chennai</h3><p>200+ Technicians</p><span class="city-badge">Most Popular</span></div></div>
+      <div class="city-card" onclick="pickCity('Madurai')"><div class="city-ico">🕌</div><div><h3>Madurai</h3><p>80+ Technicians</p></div></div>
+      <div class="city-card" onclick="pickCity('Sivagangai')"><div class="city-ico">🏘️</div><div><h3>Sivagangai</h3><p>30+ Technicians</p></div></div>
+      <div class="city-card" onclick="pickCity('Coimbatore')"><div class="city-ico">🏭</div><div><h3>Coimbatore</h3><p>120+ Technicians</p></div></div>
+      <div class="city-card" onclick="pickCity('Tiruchirappalli')"><div class="city-ico">🏰</div><div><h3>Tiruchirappalli</h3><p>60+ Technicians</p></div></div>
+      <div class="city-card" onclick="pickCity('Salem')"><div class="city-ico">⛰️</div><div><h3>Salem</h3><p>50+ Technicians</p></div></div>
+      <div class="city-card" onclick="pickCity('Tirunelveli')"><div class="city-ico">🌴</div><div><h3>Tirunelveli</h3><p>40+ Technicians</p></div></div>
+      <div class="city-card" onclick="pickCity('Erode')"><div class="city-ico">🌾</div><div><h3>Erode</h3><p>35+ Technicians</p></div></div>
+      <div class="city-card" onclick="pickCity('Vellore')"><div class="city-ico">🏯</div><div><h3>Vellore</h3><p>45+ Technicians</p></div></div>
+      <div class="city-card" onclick="pickCity('Thoothukudi')"><div class="city-ico">⚓</div><div><h3>Thoothukudi</h3><p>25+ Technicians</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TECHNICIANS -->
+<section id="technicians" class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-tag">Our Experts</div>
+      <h2>Meet Our <span class="accent">Expert Technicians</span></h2>
+      <p>Verified, background-checked professionals with years of experience</p>
+    </div>
+    <div id="techniciansGrid" class="technicians-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:60px 0">
+        <div class="spinner"></div>
+        <p style="margin-top:14px;color:#888">Loading technicians...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section dark-section">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-tag">Reviews</div>
+      <h2>What Customers <span class="accent">Are Saying</span></h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card"><div class="rstars">⭐⭐⭐⭐⭐</div><p>"Excellent AC service! Technician arrived within an hour. Very professional and fixed the issue perfectly."</p><div class="reviewer"><div class="rav">R</div><div><strong>Ravi Kumar</strong><small>Chennai</small></div></div></div>
+      <div class="review-card featured-review"><div class="rstars">⭐⭐⭐⭐⭐</div><p>"Best home service platform in Tamil Nadu. Booked a plumber at 10pm, got morning appointment confirmed instantly!"</p><div class="reviewer"><div class="rav">P</div><div><strong>Priya Lakshmi</strong><small>Madurai</small></div></div></div>
+      <div class="review-card"><div class="rstars">⭐⭐⭐⭐⭐</div><p>"Transparent pricing, no hidden charges. The electrician completed work neatly and on time."</p><div class="reviewer"><div class="rav">S</div><div><strong>Suresh M</strong><small>Sivagangai</small></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to Fix It?</h2>
+    <p>Book now and get <strong>₹100 off</strong> your first service. Code: <span class="coupon">HOMEFIX100</span></p>
+    <button class="btn-cta" onclick="goToServices()">Book a Service Now →</button>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section">
+  <div class="container">
+    <div class="contact-layout">
+      <div class="contact-left">
+        <div class="section-tag">Get In Touch</div>
+        <h2>We're Here <span class="accent">to Help</span></h2>
+        <div class="contact-list">
+          <div class="ci"><div class="ci-ico">📞</div><div><strong>Call Us</strong><p>1800-HOMEFIX (Toll Free)</p></div></div>
+          <div class="ci"><div class="ci-ico">💬</div><div><strong>WhatsApp</strong><p>+91 98765 43210</p></div></div>
+          <div class="ci"><div class="ci-ico">✉️</div><div><strong>Email</strong><p>support@homefixsmart.com</p></div></div>
+          <div class="ci"><div class="ci-ico">🕐</div><div><strong>Working Hours</strong><p>Mon–Sun: 7 AM – 10 PM</p></div></div>
+        </div>
+      </div>
+      <form class="contact-form" onsubmit="submitContact(event)">
+        <div class="field-group"><label>Your Name</label><input type="text" id="cName" placeholder="Ravi Kumar" required/></div>
+        <div class="field-row">
+          <div class="field-group"><label>Phone</label><input type="tel" id="cPhone" placeholder="+91 98765 43210" required/></div>
+          <div class="field-group"><label>Service Needed</label>
+            <select id="cService"><option>AC Service & Repair</option><option>Plumbing</option><option>Electrical</option><option>Cleaning</option><option>Painting</option><option>Carpentry</option></select>
+          </div>
+        </div>
+        <div class="field-group"><label>Message</label><textarea id="cMsg" rows="3" placeholder="Describe your issue..."></textarea></div>
+        <button type="submit" class="btn-primary full">Send Message →</button>
+        <div id="contactSuccess" class="form-success hidden">✅ We'll call you within 30 minutes!</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="font-size:20px;margin-bottom:16px"><div class="logo-mark">⚡</div><span>HomeFix<strong>Smart Services</strong></span></div>
+        <p>Tamil Nadu's most trusted home services platform. Expert technicians, guaranteed quality.</p>
+        <div class="socials"><a href="#" class="soc">f</a><a href="#" class="soc">in</a><a href="#" class="soc">ig</a><a href="#" class="soc">yt</a></div>
+      </div>
+      <div class="footer-col"><h4>Services</h4><a href="#services">AC Service & Repair</a><a href="#services">Plumbing</a><a href="#services">Electrical</a><a href="#services">Cleaning</a><a href="#services">Painting</a><a href="#services">Carpentry</a></div>
+      <div class="footer-col"><h4>Cities</h4><a href="#cities">Chennai</a><a href="#cities">Madurai</a><a href="#cities">Sivagangai</a><a href="#cities">Coimbatore</a><a href="#cities">Tiruchirappalli</a><a href="#cities">+5 more</a></div>
+      <div class="footer-col"><h4>Company</h4><a href="#">About Us</a><a href="#">Careers</a><a href="#">Partner With Us</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#contact">Contact</a></div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 HomeFix Smart Services. All rights reserved. | Made with ❤️ for Tamil Nadu</p>
+      <div class="api-live" id="apiLive">● Live</div>
+    </div>
+  </div>
+</footer>
+
+<div id="toast" class="toast hidden"></div>
+<script src="app.js"></script>
+</body>
+</html>
