@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HomeFix Smart Services — Technician Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--red:#e84c1e;--dark:#0f0f0f;--dark2:#161616;--dark3:#1e1e1e;--border:#2a2a2a;--muted:#888;--gold:#f59e0b}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:#fff;min-height:100vh}
+
+/* ── LOGIN ── */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at top,#1a0a05 0%,var(--dark) 60%)}
+.login-box{background:var(--dark2);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:100%;max-width:420px}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo span{font-size:32px}
+.login-logo h1{font-size:22px;font-weight:700;margin-top:12px}
+.login-logo h1 strong{color:var(--red)}
+.login-logo p{color:var(--muted);font-size:14px;margin-top:4px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc}
+.form-group input{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border .2s}
+.form-group input:focus{border-color:var(--red)}
+.login-btn{width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .2s}
+.login-btn:hover{opacity:.9}
+.login-hint{text-align:center;color:var(--muted);font-size:13px;margin-top:16px}
+.login-hint strong{color:#fff}
+.err{background:rgba(232,76,30,.1);border:1px solid rgba(232,76,30,.3);color:#ff7f50;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+
+/* ── DASHBOARD ── */
+.dashboard{display:none}
+.topbar{background:var(--dark2);border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{font-size:18px;font-weight:700}
+.topbar-logo strong{color:var(--red)}
+.tech-badge{background:rgba(232,76,30,.1);border:1px solid rgba(232,76,30,.2);color:var(--red);padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.tech-name{font-weight:600;font-size:14px}
+.logout-btn{background:var(--dark3);border:1px solid var(--border);color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+.main{max-width:1100px;margin:0 auto;padding:32px 24px}
+
+/* ── PROFILE CARD ── */
+.profile-card{background:var(--dark2);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;align-items:center;gap:24px;margin-bottom:28px}
+.profile-avatar{width:72px;height:72px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;flex-shrink:0;position:relative}
+.online-dot{position:absolute;bottom:2px;right:2px;width:14px;height:14px;background:#4ade80;border-radius:50%;border:2px solid var(--dark2)}
+.profile-info h2{font-size:20px;font-weight:700;margin-bottom:4px}
+.profile-spec{color:var(--red);font-size:13px;font-weight:600;margin-bottom:8px}
+.profile-stats{display:flex;gap:24px}
+.pstat{display:flex;flex-direction:column}
+.pstat strong{font-size:18px;font-weight:700}
+.pstat span{font-size:12px;color:var(--muted)}
+.profile-city{margin-left:auto;text-align:right}
+.profile-city .city-label{font-size:13px;color:var(--muted)}
+.profile-city .city-name{font-size:18px;font-weight:700;margin-top:4px}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center}
+.stat-card .stat-icon{font-size:28px;margin-bottom:8px}
+.stat-card strong{font-size:24px;font-weight:700;display:block}
+.stat-card span{font-size:12px;color:var(--muted)}
+.stat-card.green{border-color:rgba(74,222,128,.2);background:rgba(74,222,128,.05)}
+.stat-card.orange{border-color:rgba(232,76,30,.2);background:rgba(232,76,30,.05)}
+.stat-card.blue{border-color:rgba(96,165,250,.2);background:rgba(96,165,250,.05)}
+.stat-card.gold{border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.05)}
+
+/* ── BOOKINGS ── */
+.section-title{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section-title .count{background:var(--red);color:#fff;padding:2px 10px;border-radius:100px;font-size:13px}
+
+.filter-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-tab{background:var(--dark3);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:100px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.filter-tab.active{background:var(--red);border-color:var(--red);color:#fff}
+
+.booking-card{background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:14px;transition:border .2s}
+.booking-card:hover{border-color:rgba(232,76,30,.3)}
+.booking-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.booking-id{font-size:12px;color:var(--muted)}
+.booking-service{font-size:17px;font-weight:700;margin-top:4px}
+.booking-sub{color:var(--red);font-size:13px;margin-top:2px}
+.status-badge{padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;white-space:nowrap}
+.status-pending{background:rgba(245,158,11,.1);color:var(--gold);border:1px solid rgba(245,158,11,.3)}
+.status-confirmed{background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.3)}
+.status-on_the_way{background:rgba(168,85,247,.1);color:#a855f7;border:1px solid rgba(168,85,247,.3)}
+.status-completed{background:rgba(74,222,128,.1);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.status-cancelled{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+
+.booking-details{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.detail-item{background:var(--dark3);border-radius:8px;padding:10px 14px}
+.detail-item .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.detail-item .value{font-size:14px;font-weight:600}
+
+.booking-actions{display:flex;gap:8px;flex-wrap:wrap}
+.action-btn{padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-confirm{background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.3)}
+.btn-confirm:hover{background:#60a5fa;color:#000}
+.btn-otw{background:rgba(168,85,247,.1);color:#a855f7;border:1px solid rgba(168,85,247,.3)}
+.btn-otw:hover{background:#a855f7;color:#fff}
+.btn-complete{background:rgba(74,222,128,.1);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.btn-complete:hover{background:#4ade80;color:#000}
+.btn-cancel{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+.btn-cancel:hover{background:#ef4444;color:#fff}
+
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .empty-icon{font-size:48px;margin-bottom:16px}
+.loading{text-align:center;padding:60px;color:var(--muted)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--dark2);border:1px solid var(--border);padding:14px 20px;border-radius:12px;font-size:14px;z-index:9999;display:none;max-width:300px}
+.toast.success{border-color:rgba(74,222,128,.4);color:#4ade80}
+.toast.error{border-color:rgba(239,68,68,.4);color:#ef4444}
+
+@media(max-width:768px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .booking-details{grid-template-columns:1fr 1fr}
+  .profile-card{flex-direction:column;text-align:center}
+  .profile-city{margin-left:0;text-align:center}
+  .profile-stats{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div class="login-page" id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <span>⚡</span>
+      <h1>HomeFix<strong>Smart</strong> Services</h1>
+      <p>Technician Portal</p>
+    </div>
+    <div class="err" id="loginErr"></div>
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="tel" id="techPhone" placeholder="+91 9876543210"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="techPass" placeholder="Last 4 digits of phone"/>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="techLogin()">Sign In →</button>
+    <p class="login-hint">Default password: <strong>last 4 digits of your phone</strong></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">⚡ HomeFix<strong>Smart</strong></div>
+      <div class="tech-badge">Technician Portal</div>
+    </div>
+    <div class="topbar-right">
+      <span class="tech-name" id="topTechName"></span>
+      <button class="logout-btn" onclick="techLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Profile -->
+    <div class="profile-card" id="profileCard">
+      <div style="text-align:center;color:#888;padding:20px">Loading profile...</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card orange"><div class="stat-icon">📋</div><strong id="statTotal">0</strong><span>Total Bookings</span></div>
+      <div class="stat-card blue"><div class="stat-icon">✅</div><strong id="statConfirmed">0</strong><span>Confirmed</span></div>
+      <div class="stat-card green"><div class="stat-icon">🏁</div><strong id="statCompleted">0</strong><span>Completed</span></div>
+      <div class="stat-card gold"><div class="stat-icon">⭐</div><strong id="statRating">5.0</strong><span>My Rating</span></div>
+    </div>
+
+    <!-- Bookings -->
+    <div class="section-title">
+      📋 Bookings in My City
+      <span class="count" id="bookingCount">0</span>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterBookings('all',this)">All</button>
+      <button class="filter-tab" onclick="filterBookings('pending',this)">Pending</button>
+      <button class="filter-tab" onclick="filterBookings('confirmed',this)">Confirmed</button>
+      <button class="filter-tab" onclick="filterBookings('on_the_way',this)">On The Way</button>
+      <button class="filter-tab" onclick="filterBookings('completed',this)">Completed</button>
+    </div>
+
+    <div id="bookingsList">
+      <div class="loading">Loading bookings...</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:5000';
+let TOKEN = localStorage.getItem('tech_token') || null;
+let TECH  = JSON.parse(localStorage.getItem('tech_data') || 'null');
+let ALL_BOOKINGS = [];
+let CURRENT_FILTER = 'all';
+
+// Auto-login if token exists
+window.addEventListener('DOMContentLoaded', () => {
+  if (TOKEN && TECH) showDashboard();
+});
+
+async function techLogin() {
+  const phone = document.getElementById('techPhone').value.trim();
+  const password = document.getElementById('techPass').value.trim();
+  const errEl = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+  errEl.style.display = 'none';
+
+  if (!phone || !password) {
+    errEl.textContent = 'Please enter phone and password';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.textContent = 'Signing in...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${API}/api/technician/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.token) {
+      TOKEN = data.token;
+      TECH  = data.technician;
+      localStorage.setItem('tech_token', TOKEN);
+      localStorage.setItem('tech_data', JSON.stringify(TECH));
+      showDashboard();
+    } else {
+      errEl.textContent = data.message || 'Login failed';
+      errEl.style.display = 'block';
+    }
+  } catch {
+    errEl.textContent = '❌ Cannot connect to server on port 5000';
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'Sign In →';
+    btn.disabled = false;
+  }
+}
+
+function showDashboard() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('topTechName').textContent = TECH.name || 'Technician';
+  renderProfile();
+  fetchBookings();
+}
+
+function renderProfile() {
+  const initials = (TECH.name || 'T').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+  const stars = '⭐'.repeat(Math.round(TECH.rating || 5));
+  document.getElementById('profileCard').innerHTML = `
+    <div class="profile-avatar">${initials}<div class="online-dot"></div></div>
+    <div class="profile-info">
+      <h2>${TECH.name || 'Technician'}</h2>
+      <div class="profile-spec">${TECH.specialization || 'Home Services'}</div>
+      <div class="profile-stats">
+        <div class="pstat"><strong>${TECH.experience || 'N/A'}</strong><span>Experience</span></div>
+        <div class="pstat"><strong>${TECH.completedJobs || 0}+</strong><span>Jobs Done</span></div>
+        <div class="pstat"><strong>${stars} ${TECH.rating || 5}.0</strong><span>Rating</span></div>
+      </div>
+    </div>
+    <div class="profile-city">
+      <div class="city-label">📍 Serving City</div>
+      <div class="city-name">${TECH.city || 'Tamil Nadu'}</div>
+    </div>`;
+  document.getElementById('statRating').textContent = (TECH.rating || 5).toFixed(1);
+}
+
+async function fetchBookings() {
+  document.getElementById('bookingsList').innerHTML = '<div class="loading">Loading bookings...</div>';
+  try {
+    const res = await fetch(`${API}/api/technician/bookings`, {
+      headers: { Authorization: `Bearer ${TOKEN}` }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+
+    ALL_BOOKINGS = data.bookings || [];
+    updateStats();
+    renderBookings(ALL_BOOKINGS);
+  } catch (err) {
+    document.getElementById('bookingsList').innerHTML = `<div class="empty"><div class="empty-icon">❌</div><p>${err.message || 'Could not load bookings'}</p></div>`;
+  }
+}
+
+function updateStats() {
+  const total     = ALL_BOOKINGS.length;
+  const confirmed = ALL_BOOKINGS.filter(b => b.status === 'confirmed').length;
+  const completed = ALL_BOOKINGS.filter(b => b.status === 'completed').length;
+  document.getElementById('statTotal').textContent     = total;
+  document.getElementById('statConfirmed').textContent = confirmed;
+  document.getElementById('statCompleted').textContent = completed;
+  document.getElementById('bookingCount').textContent  = total;
+}
+
+function filterBookings(status, btn) {
+  CURRENT_FILTER = status;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = status === 'all' ? ALL_BOOKINGS : ALL_BOOKINGS.filter(b => b.status === status);
+  renderBookings(filtered);
+}
+
+function renderBookings(bookings) {
+  const list = document.getElementById('bookingsList');
+  if (!bookings.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><p>No bookings found</p></div>`;
+    return;
+  }
+  list.innerHTML = bookings.map(b => {
+    const shortId = String(b._id).slice(-6).toUpperCase();
+    const statusLabel = {
+      pending: 'Pending', confirmed: 'Confirmed',
+      on_the_way: 'On The Way', completed: 'Completed', cancelled: 'Cancelled'
+    }[b.status] || b.status;
+
+    const actions = b.status === 'pending' ? `
+      <button class="action-btn btn-confirm" onclick="updateStatus('${b._id}','confirmed')">✅ Confirm</button>
+      <button class="action-btn btn-cancel"  onclick="updateStatus('${b._id}','cancelled')">❌ Cancel</button>` :
+    b.status === 'confirmed' ? `
+      <button class="action-btn btn-otw"     onclick="updateStatus('${b._id}','on_the_way')">🚗 On The Way</button>
+      <button class="action-btn btn-cancel"  onclick="updateStatus('${b._id}','cancelled')">❌ Cancel</button>` :
+    b.status === 'on_the_way' ? `
+      <button class="action-btn btn-complete" onclick="updateStatus('${b._id}','completed')">🏁 Mark Complete</button>` : '';
+
+    return `
+      <div class="booking-card" id="card_${b._id}">
+        <div class="booking-card-top">
+          <div>
+            <div class="booking-id">#${shortId} · ${b.date || 'N/A'} at ${b.time || 'N/A'}</div>
+            <div class="booking-service">${b.serviceId || 'Home Service'}</div>
+            <div class="booking-sub">🔧 ${b.subServiceId || ''}</div>
+          </div>
+          <span class="status-badge status-${b.status || 'pending'}">${statusLabel}</span>
+        </div>
+        <div class="booking-details">
+          <div class="detail-item"><div class="label">📍 Address</div><div class="value">${b.address || 'N/A'}</div></div>
+          <div class="detail-item"><div class="label">🏙️ City</div><div class="value">${b.city || 'N/A'}${b.area ? ' · '+b.area : ''}</div></div>
+          <div class="detail-item"><div class="label">💰 Amount</div><div class="value">₹${b.totalAmount || 0}</div></div>
+        </div>
+        ${actions ? `<div class="booking-actions">${actions}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+async function updateStatus(bookingId, status) {
+  try {
+    const res = await fetch(`${API}/api/technician/bookings/${bookingId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` },
+      body: JSON.stringify({ status })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      // Update locally
+      const idx = ALL_BOOKINGS.findIndex(b => b._id === bookingId);
+      if (idx !== -1) ALL_BOOKINGS[idx].status = status;
+      updateStats();
+      const filtered = CURRENT_FILTER === 'all' ? ALL_BOOKINGS : ALL_BOOKINGS.filter(b => b.status === CURRENT_FILTER);
+      renderBookings(filtered);
+      const labels = { confirmed:'Confirmed ✅', on_the_way:'On The Way 🚗', completed:'Completed 🏁', cancelled:'Cancelled ❌' };
+      showToast(labels[status] || 'Updated', status === 'completed' ? 'success' : 'success');
+    } else {
+      showToast(data.message || 'Update failed', 'error');
+    }
+  } catch {
+    showToast('Cannot connect to server', 'error');
+  }
+}
+
+function techLogout() {
+  TOKEN = null; TECH = null;
+  localStorage.removeItem('tech_token');
+  localStorage.removeItem('tech_data');
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+}
+
+let toastTimer;
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type}`;
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// Enter key login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') techLogin();
+});
+</script>
+</body>
+</html>
