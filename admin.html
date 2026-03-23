@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HomeFix Smart Services — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--red:#e84c1e;--dark:#0f0f0f;--dark2:#161616;--dark3:#1e1e1e;--border:#2a2a2a;--muted:#888;--gold:#f59e0b}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:#fff;min-height:100vh}
+
+/* LOGIN */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at top,#1a0a05 0%,var(--dark) 60%)}
+.login-box{background:var(--dark2);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:100%;max-width:420px}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo span{font-size:32px}
+.login-logo h1{font-size:22px;font-weight:700;margin-top:12px}
+.login-logo h1 strong{color:var(--red)}
+.login-logo p{color:var(--muted);font-size:14px;margin-top:4px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc}
+.form-group input{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border .2s}
+.form-group input:focus{border-color:var(--red)}
+.login-btn{width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+.err{background:rgba(232,76,30,.1);border:1px solid rgba(232,76,30,.3);color:#ff7f50;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+
+/* DASHBOARD */
+.dashboard{display:none}
+.topbar{background:var(--dark2);border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{font-size:18px;font-weight:700}
+.topbar-logo strong{color:var(--red)}
+.admin-badge{background:rgba(232,76,30,.1);border:1px solid rgba(232,76,30,.2);color:var(--red);padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;margin-left:10px}
+.logout-btn{background:var(--dark3);border:1px solid var(--border);color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif}
+
+/* LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 64px)}
+.sidebar{width:220px;background:var(--dark2);border-right:1px solid var(--border);padding:20px 0;flex-shrink:0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:500;color:var(--muted);transition:all .2s;border-left:3px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav-item.active{color:#fff;background:rgba(232,76,30,.1);border-left-color:var(--red)}
+.nav-item .icon{font-size:18px;width:24px;text-align:center}
+.main{flex:1;padding:28px;overflow-x:hidden}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:22px;display:flex;align-items:center;gap:16px}
+.stat-icon{font-size:32px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:12px}
+.stat-icon.red{background:rgba(232,76,30,.1)}
+.stat-icon.green{background:rgba(74,222,128,.1)}
+.stat-icon.blue{background:rgba(96,165,250,.1)}
+.stat-icon.gold{background:rgba(245,158,11,.1)}
+.stat-info strong{font-size:26px;font-weight:700;display:block}
+.stat-info span{font-size:13px;color:var(--muted)}
+
+/* SECTION */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-title{font-size:18px;font-weight:700}
+.refresh-btn{background:var(--dark3);border:1px solid var(--border);color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif}
+.refresh-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* TABLE */
+.table-wrap{background:var(--dark2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:24px}
+table{width:100%;border-collapse:collapse}
+th{background:var(--dark3);padding:12px 16px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600}
+td{padding:14px 16px;border-top:1px solid var(--border);font-size:14px;vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* STATUS */
+.status-badge{padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700}
+.status-pending{background:rgba(245,158,11,.1);color:var(--gold)}
+.status-confirmed{background:rgba(96,165,250,.1);color:#60a5fa}
+.status-on_the_way{background:rgba(168,85,247,.1);color:#a855f7}
+.status-completed{background:rgba(74,222,128,.1);color:#4ade80}
+.status-cancelled{background:rgba(239,68,68,.1);color:#ef4444}
+
+/* ASSIGN BTN */
+.assign-btn{background:rgba(232,76,30,.1);color:var(--red);border:1px solid rgba(232,76,30,.3);padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600}
+.assign-btn:hover{background:var(--red);color:#fff}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-tab{background:var(--dark3);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:100px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.filter-tab.active{background:var(--red);border-color:var(--red);color:#fff}
+
+/* PAGE SECTIONS */
+.page{display:none}
+.page.active{display:block}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--dark2);border:1px solid var(--border);border-radius:16px;padding:32px;width:100%;max-width:440px}
+.modal h3{font-size:18px;font-weight:700;margin-bottom:20px}
+.modal select{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:16px}
+.modal-btns{display:flex;gap:10px}
+.modal-btns button{flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none}
+.btn-primary{background:var(--red);color:#fff}
+.btn-secondary{background:var(--dark3);color:#fff;border:1px solid var(--border)!important}
+
+.empty{text-align:center;padding:40px;color:var(--muted)}
+.loading{text-align:center;padding:40px;color:var(--muted)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--dark2);border:1px solid var(--border);padding:14px 20px;border-radius:12px;font-size:14px;z-index:9999;display:none}
+.toast.success{border-color:rgba(74,222,128,.4);color:#4ade80}
+.toast.error{border-color:rgba(239,68,68,.4);color:#ef4444}
+
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  table{font-size:12px}
+  td,th{padding:10px 8px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-page" id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <span>⚡</span>
+      <h1>HomeFix<strong>Smart</strong> Services</h1>
+      <p>Admin Panel</p>
+    </div>
+    <div class="err" id="loginErr"></div>
+    <div class="form-group">
+      <label>Admin Username</label>
+      <input type="text" id="adminUser" placeholder="admin"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="adminPass" placeholder="admin123"/>
+    </div>
+    <button class="login-btn" onclick="adminLogin()">Sign In →</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div class="topbar">
+    <div style="display:flex;align-items:center">
+      <div class="topbar-logo">⚡ HomeFix<strong>Smart</strong></div>
+      <div class="admin-badge">Admin Panel</div>
+    </div>
+    <button class="logout-btn" onclick="adminLogout()">Logout</button>
+  </div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="icon">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="showPage('bookings',this)"><span class="icon">📋</span> Bookings</div>
+      <div class="nav-item" onclick="showPage('technicians',this)"><span class="icon">👷</span> Technicians</div>
+      <div class="nav-item" onclick="showPage('customers',this)"><span class="icon">👥</span> Customers</div>
+      <div class="nav-item" onclick="showPage('services',this)"><span class="icon">🔧</span> Services</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card"><div class="stat-icon red">📋</div><div class="stat-info"><strong id="totalBookings">0</strong><span>Total Bookings</span></div></div>
+          <div class="stat-card"><div class="stat-icon green">💰</div><div class="stat-info"><strong id="totalRevenue">₹0</strong><span>Total Revenue</span></div></div>
+          <div class="stat-card"><div class="stat-icon blue">👥</div><div class="stat-info"><strong id="totalCustomers">0</strong><span>Customers</span></div></div>
+          <div class="stat-card"><div class="stat-icon gold">👷</div><div class="stat-info"><strong id="totalTechs">0</strong><span>Technicians</span></div></div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">📋 Recent Bookings</div>
+          <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Booking ID</th><th>Service</th><th>Customer</th><th>City</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody id="recentBookings"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BOOKINGS PAGE -->
+      <div class="page" id="page-bookings">
+        <div class="section-header">
+          <div class="section-title">📋 All Bookings</div>
+          <button class="refresh-btn" onclick="loadBookings()">🔄 Refresh</button>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="filterBookings('all',this)">All</button>
+          <button class="filter-tab" onclick="filterBookings('pending',this)">Pending</button>
+          <button class="filter-tab" onclick="filterBookings('confirmed',this)">Confirmed</button>
+          <button class="filter-tab" onclick="filterBookings('on_the_way',this)">On The Way</button>
+          <button class="filter-tab" onclick="filterBookings('completed',this)">Completed</button>
+          <button class="filter-tab" onclick="filterBookings('cancelled',this)">Cancelled</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Service</th><th>Sub-Service</th><th>City</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="allBookings"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TECHNICIANS PAGE -->
+      <div class="page" id="page-technicians">
+        <div class="section-header">
+          <div class="section-title">👷 All Technicians</div>
+          <button class="refresh-btn" onclick="loadTechnicians()">🔄 Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Specialization</th><th>City</th><th>Experience</th><th>Jobs Done</th><th>Rating</th><th>Status</th></tr></thead>
+            <tbody id="techniciansList"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CUSTOMERS PAGE -->
+      <div class="page" id="page-customers">
+        <div class="section-header">
+          <div class="section-title">👥 All Customers</div>
+          <button class="refresh-btn" onclick="loadCustomers()">🔄 Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Joined</th></tr></thead>
+            <tbody id="customersList"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SERVICES PAGE -->
+      <div class="page" id="page-services">
+        <div class="section-header">
+          <div class="section-title">🔧 All Services</div>
+          <button class="refresh-btn" onclick="loadServices()">🔄 Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Service</th><th>Category</th><th>Base Price</th><th>Sub-Services</th><th>Status</th></tr></thead>
+            <tbody id="servicesList"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGN MODAL -->
+<div class="modal-overlay" id="assignModal">
+  <div class="modal">
+    <h3>👷 Assign Technician</h3>
+    <p style="color:#888;font-size:13px;margin-bottom:16px">Select a technician to assign to this booking</p>
+    <select id="techSelect"></select>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmAssign()">Assign →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:5000';
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'admin123';
+
+let ALL_BOOKINGS = [];
+let ALL_TECHNICIANS = [];
+let SELECTED_BOOKING_ID = null;
+let BOOKING_FILTER = 'all';
+
+// Auto login check
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('admin_logged') === 'true') showDashboard();
+});
+
+function adminLogin() {
+  const user = document.getElementById('adminUser').value.trim();
+  const pass = document.getElementById('adminPass').value.trim();
+  const err  = document.getElementById('loginErr');
+  if (user === ADMIN_USER && pass === ADMIN_PASS) {
+    localStorage.setItem('admin_logged', 'true');
+    showDashboard();
+  } else {
+    err.textContent = 'Invalid username or password';
+    err.style.display = 'block';
+  }
+}
+
+function adminLogout() {
+  localStorage.removeItem('admin_logged');
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+}
+
+function showDashboard() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  loadDashboard();
+  loadTechnicians();
+}
+
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  el.classList.add('active');
+
+  if (page === 'bookings')    loadBookings();
+  if (page === 'technicians') loadTechnicians();
+  if (page === 'customers')   loadCustomers();
+  if (page === 'services')    loadServices();
+}
+
+async function loadDashboard() {
+  try {
+    const [bRes, tRes, uRes] = await Promise.all([
+      fetch(`${API}/api/admin/bookings`),
+      fetch(`${API}/api/technicians`),
+      fetch(`${API}/api/admin/customers`)
+    ]);
+    const bookings    = await bRes.json();
+    const technicians = await tRes.json();
+    const customers   = await uRes.json();
+
+    ALL_BOOKINGS    = Array.isArray(bookings)    ? bookings    : [];
+    ALL_TECHNICIANS = Array.isArray(technicians) ? technicians : [];
+
+    const revenue = ALL_BOOKINGS.filter(b => b.status === 'completed')
+      .reduce((s, b) => s + (b.totalAmount || 0), 0);
+
+    document.getElementById('totalBookings').textContent  = ALL_BOOKINGS.length;
+    document.getElementById('totalRevenue').textContent   = '₹' + revenue.toLocaleString('en-IN');
+    document.getElementById('totalCustomers').textContent = Array.isArray(customers) ? customers.length : 0;
+    document.getElementById('totalTechs').textContent     = ALL_TECHNICIANS.length;
+
+    // Recent 10 bookings
+    const recent = ALL_BOOKINGS.slice(0, 10);
+    document.getElementById('recentBookings').innerHTML = recent.length ? recent.map(b => `
+      <tr>
+        <td>#${String(b._id).slice(-6).toUpperCase()}</td>
+        <td>${b.serviceId || 'N/A'}</td>
+        <td>${b.userId || 'Customer'}</td>
+        <td>${b.city || 'N/A'}</td>
+        <td>${b.date || 'N/A'}</td>
+        <td>₹${b.totalAmount || 0}</td>
+        <td><span class="status-badge status-${b.status || 'pending'}">${b.status || 'pending'}</span></td>
+      </tr>`).join('') : '<tr><td colspan="7" class="empty">No bookings yet</td></tr>';
+  } catch (err) {
+    console.error('Dashboard error:', err);
+    showToast('Could not load dashboard data', 'error');
+  }
+}
+
+async function loadBookings() {
+  document.getElementById('allBookings').innerHTML = '<tr><td colspan="8" class="loading">Loading...</td></tr>';
+  try {
+    const res = await fetch(`${API}/api/admin/bookings`);
+    ALL_BOOKINGS = await res.json();
+    renderBookings(ALL_BOOKINGS);
+  } catch {
+    document.getElementById('allBookings').innerHTML = '<tr><td colspan="8" class="empty">Could not load bookings</td></tr>';
+  }
+}
+
+function filterBookings(status, btn) {
+  BOOKING_FILTER = status;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = status === 'all' ? ALL_BOOKINGS : ALL_BOOKINGS.filter(b => b.status === status);
+  renderBookings(filtered);
+}
+
+function renderBookings(bookings) {
+  const tbody = document.getElementById('allBookings');
+  if (!bookings.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">No bookings found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = bookings.map(b => `
+    <tr>
+      <td>#${String(b._id).slice(-6).toUpperCase()}</td>
+      <td>${b.serviceId || 'N/A'}</td>
+      <td>${b.subServiceId || 'N/A'}</td>
+      <td>${b.city || 'N/A'}</td>
+      <td>${b.date || 'N/A'} ${b.time || ''}</td>
+      <td>₹${b.totalAmount || 0}</td>
+      <td><span class="status-badge status-${b.status || 'pending'}">${b.status || 'pending'}</span></td>
+      <td><button class="assign-btn" onclick="openAssign('${b._id}')">Assign Tech</button></td>
+    </tr>`).join('');
+}
+
+async function loadTechnicians() {
+  document.getElementById('techniciansList').innerHTML = '<tr><td colspan="7" class="loading">Loading...</td></tr>';
+  try {
+    const res = await fetch(`${API}/api/technicians`);
+    ALL_TECHNICIANS = await res.json();
+    document.getElementById('techniciansList').innerHTML = ALL_TECHNICIANS.map(t => `
+      <tr>
+        <td><strong>${t.name}</strong></td>
+        <td>${t.specialization || 'N/A'}</td>
+        <td>${t.city || 'N/A'}</td>
+        <td>${t.experience || 'N/A'}</td>
+        <td>${t.completedJobs || 0}+</td>
+        <td>⭐ ${t.rating || 5}</td>
+        <td><span class="status-badge ${t.isAvailable ? 'status-completed' : 'status-cancelled'}">${t.isAvailable ? 'Available' : 'Busy'}</span></td>
+      </tr>`).join('');
+  } catch {
+    document.getElementById('techniciansList').innerHTML = '<tr><td colspan="7" class="empty">Could not load technicians</td></tr>';
+  }
+}
+
+async function loadCustomers() {
+  document.getElementById('customersList').innerHTML = '<tr><td colspan="5" class="loading">Loading...</td></tr>';
+  try {
+    const res = await fetch(`${API}/api/admin/customers`);
+    const customers = await res.json();
+    document.getElementById('customersList').innerHTML = customers.length ? customers.map(c => `
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.email}</td>
+        <td>${c.phone || 'N/A'}</td>
+        <td>${c.address || 'N/A'}</td>
+        <td>${new Date(c.createdAt).toLocaleDateString('en-IN')}</td>
+      </tr>`).join('') : '<tr><td colspan="5" class="empty">No customers yet</td></tr>';
+  } catch {
+    document.getElementById('customersList').innerHTML = '<tr><td colspan="5" class="empty">Could not load customers</td></tr>';
+  }
+}
+
+async function loadServices() {
+  document.getElementById('servicesList').innerHTML = '<tr><td colspan="5" class="loading">Loading...</td></tr>';
+  try {
+    const res = await fetch(`${API}/api/services`);
+    const services = await res.json();
+    document.getElementById('servicesList').innerHTML = services.map(s => `
+      <tr>
+        <td><strong>${s.icon || ''} ${s.name}</strong></td>
+        <td>${s.category || 'N/A'}</td>
+        <td>₹${s.basePrice || 0}</td>
+        <td>${(s.subServices || []).length} sub-services</td>
+        <td><span class="status-badge ${s.isActive ? 'status-completed' : 'status-cancelled'}">${s.isActive ? 'Active' : 'Inactive'}</span></td>
+      </tr>`).join('');
+  } catch {
+    document.getElementById('servicesList').innerHTML = '<tr><td colspan="5" class="empty">Could not load services</td></tr>';
+  }
+}
+
+function openAssign(bookingId) {
+  SELECTED_BOOKING_ID = bookingId;
+  document.getElementById('techSelect').innerHTML = ALL_TECHNICIANS.map(t =>
+    `<option value="${t._id}">${t.name} — ${t.specialization} (${t.city})</option>`
+  ).join('');
+  document.getElementById('assignModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('assignModal').classList.remove('open');
+  SELECTED_BOOKING_ID = null;
+}
+
+async function confirmAssign() {
+  const techId = document.getElementById('techSelect').value;
+  if (!techId || !SELECTED_BOOKING_ID) return;
+  try {
+    const res = await fetch(`${API}/api/admin/bookings/${SELECTED_BOOKING_ID}/assign`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ technicianId: techId, status: 'confirmed' })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast('✅ Technician assigned successfully!', 'success');
+      closeModal();
+      loadBookings();
+    } else {
+      showToast(data.message || 'Assignment failed', 'error');
+    }
+  } catch {
+    showToast('Cannot connect to server', 'error');
+  }
+}
+
+let toastTimer;
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type}`;
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.display = 'none', 3000);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') adminLogin();
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>
