@@ -155,6 +155,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="nav-item" onclick="showPage('technicians',this)"><span class="icon">👷</span> Technicians</div>
       <div class="nav-item" onclick="showPage('customers',this)"><span class="icon">👥</span> Customers</div>
       <div class="nav-item" onclick="showPage('services',this)"><span class="icon">🔧</span> Services</div>
+      <div class="nav-item" onclick="showPage('addtech',this)"><span class="icon">➕</span> Add Technician</div>
     </div>
 
     <!-- Main Content -->
@@ -243,7 +244,60 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <tbody id="servicesList"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
           </table>
         </div>
+      
+      <!-- ADD TECHNICIAN PAGE -->
+      <div class="page" id="page-addtech">
+        <div class="section-header">
+          <div class="section-title">➕ Add New Technician</div>
+        </div>
+        <div style="background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:500px">
+          <div class="form-group" style="margin-bottom:16px">
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc">Full Name</label>
+            <input type="text" id="techName" placeholder="Rajesh Kumar" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:DM Sans,sans-serif;outline:none"/>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc">Phone Number</label>
+            <input type="text" id="techPhone" placeholder="+91 9876543210" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:DM Sans,sans-serif;outline:none"/>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc">City</label>
+            <select id="techCity" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:DM Sans,sans-serif;outline:none">
+              <option>Chennai</option>
+              <option>Madurai</option>
+              <option>Coimbatore</option>
+              <option>Tiruchirappalli</option>
+              <option>Salem</option>
+              <option>Tirunelveli</option>
+              <option>Erode</option>
+              <option>Vellore</option>
+              <option>Thoothukudi</option>
+              <option>Sivagangai</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc">Specialization</label>
+            <select id="techSpec" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:DM Sans,sans-serif;outline:none">
+              <option>AC Technician</option>
+              <option>Plumber</option>
+              <option>Electrician</option>
+              <option>Cleaning Expert</option>
+              <option>Painter</option>
+              <option>Carpenter</option>
+              <option>Appliance Repair</option>
+              <option>Water Purifier</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:24px">
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc">Experience</label>
+            <input type="text" id="techExp" placeholder="3 years" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:DM Sans,sans-serif;outline:none"/>
+          </div>
+          <div id="addTechErr" style="background:rgba(232,76,30,.1);border:1px solid rgba(232,76,30,.3);color:#ff7f50;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none"></div>
+          <div id="addTechSuccess" style="background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:#4ade80;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none"></div>
+          <button onclick="addTechnician()" style="width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif">Add Technician →</button>
+          <p style="color:var(--muted);font-size:12px;margin-top:12px;text-align:center">Default password: last 4 digits of phone number</p>
+        </div>
       </div>
+</div>
 
     </div>
   </div>
@@ -265,9 +319,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div class="toast" id="toast"></div>
 
 <script>
-const API = 'http://localhost:5000';
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'admin123';
+const API = 'https://hfix.in';
+
+
 
 let ALL_BOOKINGS = [];
 let ALL_TECHNICIANS = [];
@@ -279,15 +333,33 @@ window.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('admin_logged') === 'true') showDashboard();
 });
 
-function adminLogin() {
+async function adminLogin() {
   const user = document.getElementById('adminUser').value.trim();
   const pass = document.getElementById('adminPass').value.trim();
   const err  = document.getElementById('loginErr');
-  if (user === ADMIN_USER && pass === ADMIN_PASS) {
-    localStorage.setItem('admin_logged', 'true');
-    showDashboard();
-  } else {
-    err.textContent = 'Invalid username or password';
+  err.style.display = 'none';
+  if (!user || !pass) {
+    err.textContent = 'Please enter username and password';
+    err.style.display = 'block';
+    return;
+  }
+  try {
+    const res = await fetch(`${API}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: user, password: pass })
+    });
+    const data = await res.json();
+    if (res.ok && data.token) {
+      localStorage.setItem('admin_logged', 'true');
+      localStorage.setItem('admin_token', data.token);
+      showDashboard();
+    } else {
+      err.textContent = data.message || 'Invalid credentials';
+      err.style.display = 'block';
+    }
+  } catch {
+    err.textContent = 'Cannot connect to server';
     err.style.display = 'block';
   }
 }
@@ -483,6 +555,48 @@ async function confirmAssign() {
     }
   } catch {
     showToast('Cannot connect to server', 'error');
+  }
+}
+
+
+async function addTechnician() {
+  const name = document.getElementById('techName').value.trim();
+  const phone = document.getElementById('techPhone').value.trim();
+  const city = document.getElementById('techCity').value;
+  const specialization = document.getElementById('techSpec').value;
+  const experience = document.getElementById('techExp').value.trim();
+  const errEl = document.getElementById('addTechErr');
+  const sucEl = document.getElementById('addTechSuccess');
+  errEl.style.display = 'none';
+  sucEl.style.display = 'none';
+
+  if (!name || !phone) {
+    errEl.textContent = 'Name and phone are required';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/api/admin/technicians`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, city, specialization, experience })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      sucEl.textContent = `✅ ${name} added successfully! Password: ${phone.slice(-4)}`;
+      sucEl.style.display = 'block';
+      document.getElementById('techName').value = '';
+      document.getElementById('techPhone').value = '';
+      document.getElementById('techExp').value = '';
+      loadTechnicians();
+    } else {
+      errEl.textContent = data.message || 'Failed to add technician';
+      errEl.style.display = 'block';
+    }
+  } catch {
+    errEl.textContent = 'Cannot connect to server';
+    errEl.style.display = 'block';
   }
 }
 

@@ -3,7 +3,7 @@
    Features: Dynamic city pricing + Sub-services fix
    ═══════════════════════════════════════════════════ */
 
-const API = 'http://localhost:5000';
+const API = 'https://hfix.in';
 
 /* ══════════════════════════════════════
    CITY TIER PRICING SYSTEM
