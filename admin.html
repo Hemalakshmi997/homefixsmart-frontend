@@ -245,59 +245,50 @@ tr:hover td{background:rgba(255,255,255,.02)}
           </table>
         </div>
       
+      
+  </div>
+</div>
+
       <!-- ADD TECHNICIAN PAGE -->
       <div class="page" id="page-addtech">
         <div class="section-header">
           <div class="section-title">➕ Add New Technician</div>
         </div>
         <div style="background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:500px">
-          <div class="form-group" style="margin-bottom:16px">
+          <div style="margin-bottom:16px">
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc">Full Name</label>
-            <input type="text" id="techName" placeholder="Rajesh Kumar" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:DM Sans,sans-serif;outline:none"/>
+            <input type="text" id="techName" placeholder="Rajesh Kumar" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;outline:none"/>
           </div>
-          <div class="form-group" style="margin-bottom:16px">
+          <div style="margin-bottom:16px">
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc">Phone Number</label>
-            <input type="text" id="techPhone" placeholder="+91 9876543210" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:DM Sans,sans-serif;outline:none"/>
+            <input type="text" id="techPhone" placeholder="+91 9876543210" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;outline:none"/>
           </div>
-          <div class="form-group" style="margin-bottom:16px">
+          <div style="margin-bottom:16px">
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc">City</label>
-            <select id="techCity" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:DM Sans,sans-serif;outline:none">
-              <option>Chennai</option>
-              <option>Madurai</option>
-              <option>Coimbatore</option>
-              <option>Tiruchirappalli</option>
-              <option>Salem</option>
-              <option>Tirunelveli</option>
-              <option>Erode</option>
-              <option>Vellore</option>
-              <option>Thoothukudi</option>
-              <option>Sivagangai</option>
+            <select id="techCity" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;outline:none">
+              <option>Chennai</option><option>Madurai</option><option>Coimbatore</option>
+              <option>Tiruchirappalli</option><option>Salem</option><option>Tirunelveli</option>
+              <option>Erode</option><option>Vellore</option><option>Thoothukudi</option><option>Sivagangai</option>
             </select>
           </div>
-          <div class="form-group" style="margin-bottom:16px">
+          <div style="margin-bottom:16px">
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc">Specialization</label>
-            <select id="techSpec" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:DM Sans,sans-serif;outline:none">
-              <option>AC Technician</option>
-              <option>Plumber</option>
-              <option>Electrician</option>
-              <option>Cleaning Expert</option>
-              <option>Painter</option>
-              <option>Carpenter</option>
-              <option>Appliance Repair</option>
-              <option>Water Purifier</option>
+            <select id="techSpec" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;outline:none">
+              <option>AC Technician</option><option>Plumber</option><option>Electrician</option>
+              <option>Cleaning Expert</option><option>Painter</option><option>Carpenter</option>
+              <option>Appliance Repair</option><option>Water Purifier</option>
             </select>
           </div>
-          <div class="form-group" style="margin-bottom:24px">
+          <div style="margin-bottom:24px">
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#ccc">Experience</label>
-            <input type="text" id="techExp" placeholder="3 years" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:DM Sans,sans-serif;outline:none"/>
+            <input type="text" id="techExp" placeholder="3 years" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;outline:none"/>
           </div>
           <div id="addTechErr" style="background:rgba(232,76,30,.1);border:1px solid rgba(232,76,30,.3);color:#ff7f50;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none"></div>
           <div id="addTechSuccess" style="background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:#4ade80;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none"></div>
-          <button onclick="addTechnician()" style="width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif">Add Technician →</button>
+          <button onclick="addTechnician()" style="width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:700;cursor:pointer">Add Technician →</button>
           <p style="color:var(--muted);font-size:12px;margin-top:12px;text-align:center">Default password: last 4 digits of phone number</p>
         </div>
       </div>
-</div>
 
     </div>
   </div>
