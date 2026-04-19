@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HomeFix Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--red:#e84c1e;--dark:#0f0f0f;--dark2:#161616;--dark3:#1e1e1e;--border:#2a2a2a;--muted:#888}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:#fff;height:100vh;display:flex;flex-direction:column}
+
+.chat-header{background:var(--dark2);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:14px}
+.back-btn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px}
+.chat-avatar{width:44px;height:44px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;position:relative}
+.online-dot{position:absolute;bottom:1px;right:1px;width:10px;height:10px;background:#4ade80;border-radius:50%;border:2px solid var(--dark2)}
+.chat-info h3{font-size:16px;font-weight:700}
+.chat-info p{font-size:12px;color:var(--muted);margin-top:2px}
+.chat-status{margin-left:auto}
+.status-pill{padding:4px 12px;border-radius:100px;font-size:11px;font-weight:600}
+.status-confirmed{background:rgba(96,165,250,.1);color:#60a5fa}
+.status-on_the_way{background:rgba(168,85,247,.1);color:#a855f7}
+.status-completed{background:rgba(74,222,128,.1);color:#4ade80}
+.status-pending{background:rgba(245,158,11,.1);color:#f59e0b}
+
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.chat-messages::-webkit-scrollbar{width:4px}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.msg{display:flex;flex-direction:column;max-width:75%}
+.msg.sent{align-self:flex-end;align-items:flex-end}
+.msg.received{align-self:flex-start;align-items:flex-start}
+.msg-bubble{padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.4}
+.msg.sent .msg-bubble{background:var(--red);color:#fff;border-bottom-right-radius:4px}
+.msg.received .msg-bubble{background:var(--dark3);color:#fff;border-bottom-left-radius:4px}
+.msg-meta{font-size:11px;color:var(--muted);margin-top:4px}
+
+.quick-msgs{padding:10px 16px;display:flex;gap:8px;overflow-x:auto;border-top:1px solid var(--border)}
+.quick-msgs::-webkit-scrollbar{display:none}
+.quick-btn{background:var(--dark3);border:1px solid var(--border);color:#ccc;padding:6px 14px;border-radius:100px;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:'DM Sans',sans-serif}
+.quick-btn:hover{border-color:var(--red);color:var(--red)}
+
+.chat-input{padding:12px 16px;background:var(--dark2);border-top:1px solid var(--border);display:flex;gap:10px;align-items:center}
+.chat-input input{flex:1;background:var(--dark3);border:1px solid var(--border);border-radius:100px;padding:10px 16px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
+.chat-input input:focus{border-color:var(--red)}
+.send-btn{background:var(--red);border:none;color:#fff;width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+.locked-msg{text-align:center;padding:40px 20px;color:var(--muted)}
+.locked-msg .lock-icon{font-size:48px;margin-bottom:12px}
+.locked-msg p{font-size:14px}
+
+.date-divider{text-align:center;color:var(--muted);font-size:11px;margin:8px 0;position:relative}
+.date-divider::before,.date-divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
+.date-divider::before{left:0}
+.date-divider::after{right:0}
+</style>
+</head>
+<body>
+
+<div class="chat-header">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="chat-avatar" id="chatAvatar">?<div class="online-dot"></div></div>
+  <div class="chat-info">
+    <h3 id="chatName">Loading...</h3>
+    <p id="chatSubtitle">HomeFix Smart Services</p>
+  </div>
+  <div class="chat-status">
+    <span class="status-pill" id="bookingStatus">Loading</span>
+  </div>
+</div>
+
+<div class="chat-messages" id="chatMessages">
+  <div class="locked-msg" id="lockedMsg">
+    <div class="lock-icon">🔒</div>
+    <p>Chat will be enabled once the technician confirms your booking</p>
+  </div>
+</div>
+
+<div id="quickMsgsArea" style="display:none"></div>
+<div class="chat-input" id="chatInputArea" style="display:none">
+  <input type="text" id="msgInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendMessage()"/>
+  <button class="send-btn" onclick="sendMessage()">➤</button>
+</div>
+
+<script>
+const API = 'https://hfix.in';
+const params = new URLSearchParams(window.location.search);
+const bookingId = params.get('bookingId');
+const role = params.get('role') || 'customer';
+
+// Get user info from localStorage
+const customerData = JSON.parse(localStorage.getItem('hfs_user') || 'null');
+const techData = JSON.parse(localStorage.getItem('tech_data') || 'null');
+
+const myData = role === 'technician' ? techData : customerData;
+const myId = myData?._id || myData?.id || 'unknown';
+const myName = myData?.name || 'User';
+
+// Quick messages based on role
+const QUICK_MSGS = role === 'technician' ? [
+  '🚗 I am on my way',
+  '📍 I have arrived',
+  '⏰ I will be delayed by 30 mins',
+  '✅ Job completed',
+  '📞 Please call me'
+] : [
+  '👍 OK, thank you',
+  '📍 Please use main entrance',
+  '⏰ Please come after 30 mins',
+  '❓ How long will it take?',
+  '🏠 I am at home'
+];
+
+let socket = null;
+let chatEnabled = false;
+
+// Initialize
+window.addEventListener('DOMContentLoaded', async () => {
+  if (!bookingId) {
+    document.getElementById('chatMessages').innerHTML = '<div class="locked-msg"><div class="lock-icon">❌</div><p>Invalid booking ID</p></div>';
+    return;
+  }
+  await loadBookingInfo();
+});
+
+async function loadBookingInfo() {
+  try {
+    const token = localStorage.getItem('hfs_token') || localStorage.getItem('tech_token');
+    const url = role === 'technician'
+      ? `${API}/api/technician/bookings`
+      : `${API}/api/bookings`;
+
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+
+    let booking = null;
+    if (role === 'technician') {
+      booking = (data.bookings || []).find(b => b._id === bookingId);
+    } else {
+      booking = Array.isArray(data) ? data.find(b => b._id === bookingId) : null;
+    }
+
+    if (!booking) {
+      document.getElementById('chatMessages').innerHTML = '<div class="locked-msg"><div class="lock-icon">❌</div><p>Booking not found</p></div>';
+      return;
+    }
+
+    // Update header
+    const otherName = role === 'technician' ? 'Customer' : 'Technician';
+    document.getElementById('chatName').textContent = `${booking.serviceId || 'Service'} - ${otherName}`;
+    document.getElementById('chatSubtitle').textContent = `Booking #${String(booking._id).slice(-6).toUpperCase()} · ${booking.city || ''}`;
+    document.getElementById('chatAvatar').textContent = otherName[0];
+
+    const status = booking.status || 'pending';
+    const statusEl = document.getElementById('bookingStatus');
+    statusEl.textContent = status.replace('_', ' ');
+    statusEl.className = `status-pill status-${status}`;
+
+    // Enable chat only if confirmed or on_the_way
+    if (status === 'confirmed' || status === 'on_the_way' || status === 'completed') {
+      enableChat(booking);
+    } else {
+      document.getElementById('lockedMsg').innerHTML = `
+        <div class="lock-icon">🔒</div>
+        <p>Chat will be enabled once the technician <strong>confirms</strong> your booking</p>
+        <p style="margin-top:8px;font-size:12px">Current status: <strong>${status}</strong></p>`;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function enableChat(booking) {
+  chatEnabled = true;
+  document.getElementById('lockedMsg').style.display = 'none';
+  document.getElementById('chatInputArea').style.display = 'flex';
+
+  // Show quick messages
+  const quickArea = document.getElementById('quickMsgsArea');
+  quickArea.style.display = 'flex';
+  quickArea.className = 'quick-msgs';
+  quickArea.innerHTML = QUICK_MSGS.map(m =>
+    `<button class="quick-btn" onclick="sendQuick('${m}')">${m}</button>`
+  ).join('');
+
+  // Connect socket
+  socket = io(API, { transports: ['websocket', 'polling'] });
+  socket.on('connect', () => {
+    socket.emit('join_booking', bookingId);
+    loadMessages();
+  });
+  socket.on('receive_message', (msg) => {
+    appendMessage(msg);
+  });
+}
+
+async function loadMessages() {
+  try {
+    const res = await fetch(`${API}/api/chat/${bookingId}`);
+    const messages = await res.json();
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = '';
+    if (messages.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">No messages yet. Say hello! 👋</div>';
+    } else {
+      messages.forEach(msg => appendMessage(msg, false));
+    }
+    scrollToBottom();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function appendMessage(msg, scroll = true) {
+  const container = document.getElementById('chatMessages');
+  const isEmpty = container.querySelector('[style*="No messages"]');
+  if (isEmpty) container.innerHTML = '';
+
+  const isSent = msg.senderId === myId || msg.senderName === myName;
+  const time = new Date(msg.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+  const div = document.createElement('div');
+  div.className = `msg ${isSent ? 'sent' : 'received'}`;
+  div.innerHTML = `
+    <div class="msg-bubble">${msg.message}</div>
+    <div class="msg-meta">${isSent ? 'You' : msg.senderName} · ${time}</div>`;
+  container.appendChild(div);
+  if (scroll) scrollToBottom();
+}
+
+function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const message = input.value.trim();
+  if (!message || !socket) return;
+
+  socket.emit('send_message', {
+    bookingId,
+    senderId: myId,
+    senderName: myName,
+    senderRole: role,
+    message
+  });
+  input.value = '';
+}
+
+function sendQuick(message) {
+  if (!socket) return;
+  socket.emit('send_message', {
+    bookingId,
+    senderId: myId,
+    senderName: myName,
+    senderRole: role,
+    message
+  });
+}
+
+function scrollToBottom() {
+  const container = document.getElementById('chatMessages');
+  container.scrollTop = container.scrollHeight;
+}
+</script>
+</body>
+</html>

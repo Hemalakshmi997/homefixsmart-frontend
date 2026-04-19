@@ -91,7 +91,7 @@
             <option value="">Select city</option>
             <option>Chennai</option><option>Madurai</option><option>Sivagangai</option>
             <option>Coimbatore</option><option>Tiruchirappalli</option><option>Salem</option>
-            <option>Tirunelveli</option><option>Erode</option><option>Vellore</option><option>Thoothukudi</option>
+            <option>Tirunelveli</option><option>Erode</option><option>Vellore</option><option>Thoothukudi</option><option>Kollam</option><option>Kottayam</option><option>Thrissur</option><option>Kannur</option>
           </select>
         </div>
         <div class="field-group">
@@ -133,6 +133,7 @@
       <h2>Booking Confirmed! 🎉</h2>
       <p class="auth-sub">Our technician will contact you within 30 minutes.</p>
       <div class="booking-confirm-card" id="bookingConfirmCard"></div>
+          <a id="chatBtn" href="#" style="display:none;background:#e84c1e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;margin-top:16px;display:inline-block">💬 Chat with Technician</a>
       <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;">
         <button class="btn-primary" onclick="openMyBookings()">View Bookings</button>
         <button class="btn-ghost" onclick="closeBooking()">Done</button>
@@ -172,7 +173,7 @@
           <option value="">Select City</option>
           <option>Chennai</option><option>Madurai</option><option>Sivagangai</option>
           <option>Coimbatore</option><option>Tiruchirappalli</option><option>Salem</option>
-          <option>Tirunelveli</option><option>Erode</option><option>Vellore</option><option>Thoothukudi</option>
+          <option>Tirunelveli</option><option>Erode</option><option>Vellore</option><option>Thoothukudi</option><option>Kollam</option><option>Kottayam</option><option>Thrissur</option><option>Kannur</option>
         </select>
       </div>
       <div id="authButtons" class="auth-btn-group">
@@ -228,7 +229,7 @@
             <option value="">Select your city</option>
             <option>Chennai</option><option>Madurai</option><option>Sivagangai</option>
             <option>Coimbatore</option><option>Tiruchirappalli</option><option>Salem</option>
-            <option>Tirunelveli</option><option>Erode</option><option>Vellore</option><option>Thoothukudi</option>
+            <option>Tirunelveli</option><option>Erode</option><option>Vellore</option><option>Thoothukudi</option><option>Kollam</option><option>Kottayam</option><option>Thrissur</option><option>Kannur</option>
           </select>
         </div>
         <button class="btn-hero" onclick="goToServices()">Explore Services →</button>
@@ -322,6 +323,26 @@
       <div class="city-card" onclick="pickCity('Erode')"><div class="city-ico">🌾</div><div><h3>Erode</h3><p>35+ Technicians</p></div></div>
       <div class="city-card" onclick="pickCity('Vellore')"><div class="city-ico">🏯</div><div><h3>Vellore</h3><p>45+ Technicians</p></div></div>
       <div class="city-card" onclick="pickCity('Thoothukudi')"><div class="city-ico">⚓</div><div><h3>Thoothukudi</h3><p>25+ Technicians</p></div></div>
+        <div class="city-card" onclick="pickCity('Kollam')">
+          <div class="city-icon">🌴</div>
+          <h3>Kollam</h3>
+          <p>20+ Technicians</p>
+        </div>
+        <div class="city-card" onclick="pickCity('Kottayam')">
+          <div class="city-icon">🌿</div>
+          <h3>Kottayam</h3>
+          <p>15+ Technicians</p>
+        </div>
+        <div class="city-card" onclick="pickCity('Thrissur')">
+          <div class="city-icon">🏛️</div>
+          <h3>Thrissur</h3>
+          <p>25+ Technicians</p>
+        </div>
+        <div class="city-card" onclick="pickCity('Kannur')">
+          <div class="city-icon">⚓</div>
+          <h3>Kannur</h3>
+          <p>15+ Technicians</p>
+        </div>
     </div>
   </div>
 </section>

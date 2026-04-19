@@ -354,6 +354,7 @@ function renderBookings(bookings) {
       </div>`;
   }).join('');
 }
+        <a href="/chat.html?bookingId=${b._id}&role=technician" style="display:inline-block;margin-top:8px;color:#e84c1e;font-size:13px;font-weight:600;text-decoration:none">💬 Open Chat</a>
 
 async function updateStatus(bookingId, status) {
   try {

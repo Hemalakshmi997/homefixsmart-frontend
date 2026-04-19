@@ -22,6 +22,10 @@ const CITY_TIERS = {
   'Vellore':         { tier:2, label:'Major City',  factor:0.95, badge:'🌆 City'     },
   'Thoothukudi':     { tier:2, label:'Major City',  factor:0.95, badge:'🌆 City'     },
   'Sivagangai':      { tier:3, label:'District',    factor:0.85, badge:'🏘️ District' },
+  'Kollam':          { tier:2, label:'Major City',  factor:1.00, badge:'🌆 City' },
+  'Kottayam':        { tier:2, label:'Major City',  factor:0.95, badge:'🌆 City' },
+  'Thrissur':        { tier:2, label:'Major City',  factor:1.00, badge:'🌆 City' },
+  'Kannur':          { tier:2, label:'Major City',  factor:0.95, badge:'🌆 City' },
 };
 
 function getCityTier(city) {
@@ -50,6 +54,7 @@ const SVC_META = {
   'Carpentry':               { icon:'🪚', tags:['Skilled','Quality Wood']    },
   'Appliance Repair':        { icon:'🔌', tags:['All Brands','Warranty']     },
   'Water Purifier':          { icon:'💧', tags:['RO Expert','Certified']     },
+  'Elderly Care':            { icon:'👴', tags:['Trusted','Verified']       },
 };
 
 /* ══════════════════════════════════════
@@ -482,6 +487,9 @@ function showBookingSuccess(booking, payload) {
     ${payload.totalAmount ? `<div>💰 <strong>Amount:</strong> ₹${payload.totalAmount} (${tier.label} pricing)</div>` : ''}`;
   document.getElementById('bookingStep1').classList.add('hidden');
   document.getElementById('bookingSuccess').classList.remove('hidden');
+  // Add chat button
+  const chatBtn = document.getElementById('chatBtn');
+  if(chatBtn) { chatBtn.href = '/chat.html?bookingId=' + (booking._id || '') + '&role=customer'; chatBtn.style.display='inline-block'; }
   showToast('✅ Booking confirmed! Technician will contact you soon.', 'success');
 }
 
