@@ -127,19 +127,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 async function loadBookingInfo() {
   try {
     const token = localStorage.getItem('hfs_token') || localStorage.getItem('tech_token');
-    const url = role === 'technician'
-      ? `${API}/api/technician/bookings`
-      : `${API}/api/bookings`;
-
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    const data = await res.json();
-
-    let booking = null;
-    if (role === 'technician') {
-      booking = (data.bookings || []).find(b => b._id === bookingId);
-    } else {
-      booking = Array.isArray(data) ? data.find(b => b._id === bookingId) : null;
-    }
+    const res = await fetch(`${API}/api/bookings/${bookingId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const booking = res.ok ? await res.json() : null;
 
     if (!booking) {
       document.getElementById('chatMessages').innerHTML = '<div class="locked-msg"><div class="lock-icon">❌</div><p>Booking not found</p></div>';

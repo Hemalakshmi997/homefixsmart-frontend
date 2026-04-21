@@ -351,10 +351,10 @@ function renderBookings(bookings) {
           <div class="detail-item"><div class="label">💰 Amount</div><div class="value">₹${b.totalAmount || 0}</div></div>
         </div>
         ${actions ? `<div class="booking-actions">${actions}</div>` : ''}
-      </div>`;
+      <a href="/chat.html?bookingId=${b._id}&role=technician" style="display:inline-block;margin-top:10px;background:#e84c1e;color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none">💬 Chat with Customer</a>
+    </div>`;
   }).join('');
 }
-        <a href="/chat.html?bookingId=${b._id}&role=technician" style="display:inline-block;margin-top:8px;color:#e84c1e;font-size:13px;font-weight:600;text-decoration:none">💬 Open Chat</a>
 
 async function updateStatus(bookingId, status) {
   try {

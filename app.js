@@ -531,6 +531,7 @@ async function fetchMyBookings() {
           <div style="text-align:right">
             <span class="booking-status ${sc}">${b.status||'Pending'}</span>
             <div style="font-size:11px;color:#666;margin-top:6px">#${sid}</div>
+          <a href="/chat.html?bookingId=${b._id}&role=customer" style="display:inline-block;margin-top:8px;background:#e84c1e;color:#fff;padding:6px 14px;border-radius:8px;font-size:11px;font-weight:600;text-decoration:none">💬 Chat</a>
           </div>
         </div>`;
     }).join('');
